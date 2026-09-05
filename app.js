@@ -43,17 +43,12 @@ const chartEmpty = document.getElementById("chart-empty");
 const chartLegend = document.getElementById("chart-legend");
 const chartSummary = document.getElementById("chart-summary");
 
-const monthStart = new Date(
+const currentMonth = new Date(
   new Date().getFullYear(),
   new Date().getMonth(),
   1
 );
-const monthEnd = new Date(
-  monthStart.getFullYear(),
-  monthStart.getMonth() + 11,
-  1
-);
-let selectedMonth = new Date(monthStart);
+let selectedMonth = new Date(currentMonth);
 let entriesData = [];
 
 
@@ -177,15 +172,10 @@ function formatRating(value) {
 
 function updateMonthNavigation() {
   monthTitle.textContent = getMonthLabel(selectedMonth);
-  monthRange.textContent =
-    `${getMonthLabel(monthStart)} – ${getMonthLabel(monthEnd)}`;
-
-  previousMonthButton.disabled =
-    monthNumber(selectedMonth) <= monthNumber(monthStart);
-  nextMonthButton.disabled =
-    monthNumber(selectedMonth) >= monthNumber(monthEnd);
+  monthRange.textContent = "Alle gespeicherten Einträge";
+  previousMonthButton.disabled = false;
+  nextMonthButton.disabled = false;
 }
-
 
 function getCalendarSummary() {
   const summaryByDate = new Map();
@@ -806,17 +796,13 @@ intensityInputs.forEach((input) => {
 });
 
 previousMonthButton.addEventListener("click", () => {
-  if (monthNumber(selectedMonth) > monthNumber(monthStart)) {
-    selectedMonth = addMonths(selectedMonth, -1);
-    renderInsights();
-  }
+  selectedMonth = addMonths(selectedMonth, -1);
+  renderInsights();
 });
 
 nextMonthButton.addEventListener("click", () => {
-  if (monthNumber(selectedMonth) < monthNumber(monthEnd)) {
-    selectedMonth = addMonths(selectedMonth, 1);
-    renderInsights();
-  }
+  selectedMonth = addMonths(selectedMonth, 1);
+  renderInsights();
 });
 
 dateInput.value = getLocalDateString();
