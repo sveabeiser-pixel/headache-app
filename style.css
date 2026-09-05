@@ -443,6 +443,7 @@ h3 {
 
 .history-card .entries-list {
   min-height: 0;
+  flex: 1 1 auto;
   padding-right: 8px;
   overflow-y: auto;
   overscroll-behavior: contain;
