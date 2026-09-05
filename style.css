@@ -847,6 +847,11 @@ h3 {
   background: var(--coral);
 }
 
+.line-key {
+  height: 3px;
+  background: var(--lavender-dark);
+}
+
 .mean-key {
   background: var(--ink);
   background-image: linear-gradient(to right, var(--ink) 55%, transparent 55%);
