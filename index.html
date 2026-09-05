@@ -134,6 +134,62 @@
                         <div id="entries" class="entries-list" aria-live="polite"></div>
                     </section>
                 </div>
+
+                <div class="insights-grid">
+                    <section class="card month-card">
+                        <div class="month-header">
+                            <button id="previous-month" class="month-nav" type="button" aria-label="Vorheriger Monat">←</button>
+                            <div class="month-heading">
+                                <p class="eyebrow">MONATSÜBERSICHT</p>
+                                <h3 id="month-title">Aktueller Monat</h3>
+                                <p id="month-range" class="month-range"></p>
+                            </div>
+                            <button id="next-month" class="month-nav" type="button" aria-label="Nächster Monat">→</button>
+                        </div>
+
+                        <div class="calendar-weekdays" aria-hidden="true">
+                            <span>Mo</span>
+                            <span>Di</span>
+                            <span>Mi</span>
+                            <span>Do</span>
+                            <span>Fr</span>
+                            <span>Sa</span>
+                            <span>So</span>
+                        </div>
+                        <div id="calendar-grid" class="calendar-grid" role="grid" aria-label="Monatskalender"></div>
+
+                        <div class="calendar-legend" aria-label="Legende">
+                            <span><i class="legend-swatch intensity-1"></i>1 Stern</span>
+                            <span><i class="legend-swatch intensity-2"></i>2 Sterne</span>
+                            <span><i class="legend-swatch intensity-3"></i>3 Sterne</span>
+                            <span><i class="legend-swatch intensity-4"></i>4 Sterne</span>
+                            <span><span class="legend-pill" aria-hidden="true">💊</span> Medikament</span>
+                        </div>
+                    </section>
+
+                    <section class="card chart-card">
+                        <div class="chart-heading">
+                            <div>
+                                <p class="eyebrow">AUSWERTUNG</p>
+                                <h3>Tagesverlauf</h3>
+                            </div>
+                            <span id="chart-summary" class="chart-summary"></span>
+                        </div>
+
+                        <div class="chart-wrap">
+                            <svg id="monthly-chart" class="monthly-chart" viewBox="0 0 760 330" role="img" aria-labelledby="chart-title chart-description">
+                                <title id="chart-title">Kopfschmerzstärke im ausgewählten Monat</title>
+                                <desc id="chart-description">Balkendiagramm mit einer Linie für den Monatsmittelwert.</desc>
+                            </svg>
+                            <p id="chart-empty" class="empty-state" hidden>Noch keine Stärke-Daten für diesen Monat.</p>
+                        </div>
+
+                        <div id="chart-legend" class="chart-legend" aria-label="Diagrammlegende">
+                            <span><i class="chart-key bar-key"></i>Tagesstärke</span>
+                            <span><i class="chart-key mean-key"></i>Monatsmittel</span>
+                        </div>
+                    </section>
+                </div>
             </section>
         </main>
 
