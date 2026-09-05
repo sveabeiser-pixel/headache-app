@@ -914,7 +914,8 @@ h3 {
   background-size: 7px 100%;
 }
 
-.period-key {
+.period-key,
+.medication-key {
   width: auto;
   height: auto;
   font-size: 0.78rem;
