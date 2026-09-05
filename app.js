@@ -1,5 +1,5 @@
-const SUPABASE_URL = "HIER_DEINE_PROJECT_URL";
-const SUPABASE_KEY = "HIER_DEINEN_PUBLISHABLE_KEY";
+const SUPABASE_URL = "https://abhyszqpkmdsdmxswpqw.supabase.co";
+const SUPABASE_KEY = "sb_publishable_tezeZtjs7W4XlRUkX02GXQ_ddRMNITh";
 
 const supabaseClient = supabase.createClient(
   SUPABASE_URL,
@@ -20,7 +20,6 @@ const saveMessage = document.getElementById("save-message");
 
 const dateInput = document.getElementById("date");
 const intensityInput = document.getElementById("intensity");
-const durationInput = document.getElementById("duration");
 const medicationInput = document.getElementById("medication");
 const notesInput = document.getElementById("notes");
 
@@ -36,7 +35,7 @@ async function login() {
   const email = emailInput.value;
   const password = passwordInput.value;
 
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
+  const { error } = await supabaseClient.auth.signInWithPassword({
     email,
     password
   });
@@ -87,9 +86,6 @@ async function saveEntry() {
     intensity: intensityInput.value
       ? Number(intensityInput.value)
       : null,
-    duration: durationInput.value
-      ? Number(durationInput.value)
-      : null,
     medication: medicationInput.value || null,
     notes: notesInput.value || null
   };
@@ -107,7 +103,6 @@ async function saveEntry() {
   saveMessage.textContent = "Gespeichert.";
 
   intensityInput.value = "";
-  durationInput.value = "";
   medicationInput.value = "";
   notesInput.value = "";
 
@@ -137,7 +132,6 @@ async function loadEntries() {
 
     div.textContent =
       `${entry.date} – Stärke ${entry.intensity ?? "-"} – ` +
-      `${entry.duration ?? "-"} h – ` +
       `${entry.medication ?? "kein Medikament"}`;
 
     entriesDiv.appendChild(div);
