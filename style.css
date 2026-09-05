@@ -293,7 +293,7 @@ h3 {
 
 .app-grid {
   display: grid;
-  grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
   gap: 22px;
 }
@@ -304,7 +304,15 @@ h3 {
 }
 
 .entries-card {
-  min-height: 100%;
+  min-height: 0;
+}
+
+.history-card {
+  display: flex;
+  flex-direction: column;
+  height: 520px;
+  margin-top: 22px;
+  overflow: hidden;
 }
 
 .entries-heading {
@@ -433,6 +441,30 @@ h3 {
   gap: 11px;
 }
 
+.history-card .entries-list {
+  min-height: 0;
+  padding-right: 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.history-card .entries-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.history-card .entries-list::-webkit-scrollbar-track {
+  border-radius: 8px;
+  background: rgba(233, 229, 225, 0.55);
+}
+
+.history-card .entries-list::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: #d8b8bd;
+  background-clip: padding-box;
+}
+
 .entry {
   padding: 16px 17px;
   border: 1px solid var(--line);
@@ -549,6 +581,10 @@ h3 {
 
   .ghost-button {
     margin-top: 14px;
+  }
+
+  .history-card {
+    height: 460px;
   }
 
   .star-rating {
