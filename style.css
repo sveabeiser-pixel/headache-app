@@ -421,6 +421,16 @@ h3 {
   transform: rotate(45deg);
 }
 
+.period-checkbox-card:has(input:checked) {
+  border-color: rgba(201, 87, 118, 0.48);
+  background: #fff4f5;
+}
+
+.period-checkbox-card input:checked + .checkbox-box {
+  border-color: #c95776;
+  background: #c95776;
+}
+
 .checkbox-copy {
   display: grid;
   gap: 3px;
@@ -745,11 +755,13 @@ h3 {
 .day-indicators {
   display: flex;
   align-items: center;
+  gap: 4px;
   min-height: 16px;
 }
 
-.pill-icon {
-  font-size: 0.82rem;
+.pill-icon,
+.period-icon {
+  font-size: 0.78rem;
   line-height: 1;
 }
 
@@ -793,7 +805,8 @@ h3 {
   background: #c95776;
 }
 
-.legend-pill {
+.legend-pill,
+.legend-period {
   font-size: 0.78rem;
   line-height: 1;
 }
@@ -818,14 +831,14 @@ h3 {
 }
 
 .chart-wrap {
-  min-height: 266px;
+  min-height: 430px;
 }
 
 .monthly-chart {
   display: block;
   width: 100%;
-  height: auto;
-  overflow: visible;
+  height: 430px;
+  min-height: 430px;
 }
 
 .chart-grid-line {
@@ -864,6 +877,12 @@ h3 {
   opacity: 0.63;
 }
 
+.chart-period-marker {
+  fill: #c95776;
+  stroke: #fff;
+  stroke-width: 1.2;
+}
+
 .chart-mean-label {
   fill: var(--ink);
   font-family: inherit;
@@ -893,6 +912,13 @@ h3 {
   background: var(--ink);
   background-image: linear-gradient(to right, var(--ink) 55%, transparent 55%);
   background-size: 7px 100%;
+}
+
+.period-key {
+  width: auto;
+  height: auto;
+  font-size: 0.78rem;
+  line-height: 1;
 }
 
 @media (max-width: 760px) {
@@ -937,5 +963,13 @@ h3 {
     display: inline-block;
     margin-top: 10px;
     text-align: left;
+  }
+}
+
+
+@media (max-width: 760px) {
+  .monthly-chart {
+    height: 390px;
+    min-height: 390px;
   }
 }
