@@ -20,6 +20,7 @@ const saveMessage = document.getElementById("save-message");
 
 const dateInput = document.getElementById("date");
 const medicationInput = document.getElementById("medication");
+const periodInput = document.getElementById("period");
 const notesInput = document.getElementById("notes");
 const intensityInputs = Array.from(
   document.querySelectorAll('input[name="intensity"]')
@@ -118,6 +119,11 @@ function hasMedication(entry) {
 }
 
 
+function hasPeriod(entry) {
+  return String(entry.period ?? "").trim() === "1";
+}
+
+
 function updateStarDisplay(value) {
   intensityLabels.forEach((label, index) => {
     label.classList.toggle("is-filled", index < value);
@@ -194,12 +200,14 @@ function getCalendarSummary() {
 
     const oldSummary = summaryByDate.get(dateKey) || {
       intensity: 0,
-      medication: false
+      medication: false,
+      period: false
     };
 
     summaryByDate.set(dateKey, {
       intensity: Math.max(oldSummary.intensity, clampIntensity(entry.intensity)),
-      medication: oldSummary.medication || hasMedication(entry)
+      medication: oldSummary.medication || hasMedication(entry),
+      period: oldSummary.period || hasPeriod(entry)
     });
   }
 
@@ -258,10 +266,13 @@ function renderCalendar() {
       const medicationText = summary.medication
         ? ", Medikament genommen"
         : "";
+      const periodText = summary.period
+        ? ", Periode"
+        : "";
 
       cell.setAttribute(
         "aria-label",
-        `${labelDate}: ${intensityText}${medicationText}`
+        labelDate + ": " + intensityText + medicationText + periodText
       );
       cell.title = cell.getAttribute("aria-label");
 
@@ -271,6 +282,14 @@ function renderCalendar() {
         pill.setAttribute("aria-label", "Medikament genommen");
         pill.textContent = "💊";
         indicators.appendChild(pill);
+      }
+
+      if (summary.period) {
+        const period = document.createElement("span");
+        period.className = "period-icon";
+        period.setAttribute("aria-label", "Periode");
+        period.textContent = "🩸";
+        indicators.appendChild(period);
       }
     } else {
       cell.setAttribute(
@@ -319,169 +338,293 @@ function colorForIntensity(value) {
 
 
 function renderMonthlyChart() {
-  const monthEntries = getMonthEntries();
-  const year = selectedMonth.getFullYear();
-  const month = selectedMonth.getMonth();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const valuesByDay = Array.from({ length: daysInMonth }, () => []);
+  const monthEntries = entriesData;
+  const daysInMonth = 0;
+  const recordsByDate = new Map();
 
   for (const entry of monthEntries) {
     const dateKey = getDateKey(entry.date);
-    const day = Number(dateKey.slice(8, 10));
+
+    if (!dateKey) {
+      continue;
+    }
+
+    const record = recordsByDate.get(dateKey) || {
+      intensities: [],
+      medication: false,
+      period: false
+    };
     const intensity = clampIntensity(entry.intensity);
 
-    if (day >= 1 && day <= daysInMonth && intensity > 0) {
-      valuesByDay[day - 1].push(intensity);
+    if (intensity > 0) {
+      record.intensities.push(intensity);
     }
+
+    record.medication = record.medication || hasMedication(entry);
+    record.period = record.period || hasPeriod(entry);
+    recordsByDate.set(dateKey, record);
   }
 
-  const dailyMeans = valuesByDay.map((values) => {
-    if (values.length === 0) {
-      return null;
-    }
+  const dates = Array.from(recordsByDate.keys()).sort();
+  const dailyRecords = dates.map((date) => {
+    const record = recordsByDate.get(date);
+    const mean = record.intensities.length
+      ? record.intensities.reduce((sum, value) => sum + value, 0) /
+        record.intensities.length
+      : null;
 
-    return values.reduce((sum, value) => sum + value, 0) / values.length;
+    return {
+      date,
+      mean,
+      medication: record.medication,
+      period: record.period
+    };
   });
-
-  const validValues = dailyMeans.filter((value) => value !== null);
-  const monthlyMean = validValues.length
-    ? validValues.reduce((sum, value) => sum + value, 0) / validValues.length
+  const intensityRecords = dailyRecords.filter((record) => record.mean !== null);
+  const allIntensityValues = monthEntries
+    .map((entry) => clampIntensity(entry.intensity))
+    .filter((value) => value > 0);
+  const overallMean = allIntensityValues.length
+    ? allIntensityValues.reduce((sum, value) => sum + value, 0) /
+      allIntensityValues.length
     : null;
+  const medicationDates = dailyRecords
+    .filter((record) => record.medication)
+    .map((record) => record.date);
+  const periodDates = dailyRecords
+    .filter((record) => record.period)
+    .map((record) => record.date);
+  const hasData = dailyRecords.length > 0;
+  const summaryParts = [];
 
-  chartSummary.textContent = monthlyMean === null
-    ? "Keine Daten"
-    : `${monthEntries.length} Einträge · Ø ${monthlyMean.toFixed(1).replace(".", ",")} Sterne`;
+  if (monthEntries.length > 0) {
+    summaryParts.push(monthEntries.length + " Einträge");
+  }
 
-  const hasData = monthlyMean !== null;
+  if (overallMean !== null) {
+    summaryParts.push(
+      "Ø " + overallMean.toFixed(1).replace(".", ",") + " Sterne"
+    );
+  }
+
+  if (medicationDates.length > 0) {
+    summaryParts.push("💊 " + medicationDates.length + " Medikamententage");
+  }
+
+  if (periodDates.length > 0) {
+    summaryParts.push("🩸 " + periodDates.length + " Periodentage");
+  }
+
+  chartSummary.textContent = summaryParts.length
+    ? summaryParts.join(" · ")
+    : "Keine Daten";
   monthlyChart.hidden = !hasData;
   chartEmpty.hidden = hasData;
   chartLegend.hidden = !hasData;
 
   if (!hasData) {
+    if (typeof Plotly !== "undefined" && monthlyChart.data) {
+      Plotly.purge(monthlyChart);
+    }
     return;
   }
 
-  const width = 760;
-  const height = 330;
-  const margin = { top: 28, right: 28, bottom: 46, left: 48 };
-  const plotWidth = width - margin.left - margin.right;
-  const plotHeight = height - margin.top - margin.bottom;
-  const plotBottom = margin.top + plotHeight;
-  const slotWidth = plotWidth / daysInMonth;
-  const barWidth = Math.max(5, Math.min(20, slotWidth * 0.66));
-
-  const plotY = (value) =>
-    plotBottom - (value / 4) * plotHeight;
-  const plotX = (index) =>
-    margin.left + index * slotWidth + slotWidth / 2;
-
-  monthlyChart.replaceChildren();
-  monthlyChart.appendChild(
-    svgElement("title", { id: "chart-title" },
-      `Kopfschmerzstärke im ${getMonthLabel(selectedMonth)}`)
-  );
-  monthlyChart.appendChild(
-    svgElement("desc", { id: "chart-description" },
-      "Tagesmittelwerte als Balken und Monatsmittel als gestrichelte Linie.")
-  );
-
-  for (let tick = 0; tick <= 4; tick += 1) {
-    const y = plotY(tick);
-
-    monthlyChart.appendChild(
-      svgElement("line", {
-        x1: margin.left,
-        y1: y,
-        x2: width - margin.right,
-        y2: y,
-        class: "chart-grid-line"
-      })
-    );
-    monthlyChart.appendChild(
-      svgElement("text", {
-        x: margin.left - 13,
-        y: y + 4,
-        class: "chart-axis-label",
-        "text-anchor": "end"
-      }, String(tick))
-    );
+  if (typeof Plotly === "undefined") {
+    chartSummary.textContent = "Diagramm-Bibliothek konnte nicht geladen werden.";
+    chartEmpty.textContent = "Plotly konnte nicht geladen werden.";
+    chartEmpty.hidden = false;
+    monthlyChart.hidden = true;
+    chartLegend.hidden = true;
+    return;
   }
 
-  dailyMeans.forEach((value, index) => {
-    if (value === null) {
-      return;
+  const barDates = intensityRecords.map((record) => record.date);
+  const barValues = intensityRecords.map((record) => record.mean);
+  const barColors = barValues.map((value) => colorForIntensity(value));
+  const chartData = [
+    {
+      x: barDates,
+      y: barValues,
+      type: "bar",
+      name: "Tagesstärke",
+      marker: {
+        color: barColors,
+        line: {
+          color: "#ffffff",
+          width: 0.7
+        }
+      },
+      hovertemplate: "%{x|%d.%m.%Y}<br>Ø %{y:.1f} Sterne<extra></extra>"
+    },
+    {
+      x: barDates,
+      y: barValues,
+      type: "scatter",
+      mode: "lines+markers",
+      name: "Tagesverlauf",
+      line: {
+        color: "#6f6ca9",
+        width: 2.5
+      },
+      marker: {
+        color: "#6f6ca9",
+        size: 5
+      },
+      connectgaps: false,
+      hovertemplate: "%{x|%d.%m.%Y}<br>Verlauf: %{y:.1f} Sterne<extra></extra>"
     }
+  ];
 
-    const x = plotX(index) - barWidth / 2;
-    const y = plotY(value);
-
-    monthlyChart.appendChild(
-      svgElement("rect", {
-        x,
-        y,
-        width: barWidth,
-        height: plotBottom - y,
-        rx: 7,
-        class: "chart-bar",
-        fill: colorForIntensity(value)
-      })
-    );
-  });
-
-  const linePoints = dailyMeans
-    .map((value, index) => value === null
-      ? null
-      : [plotX(index), plotY(value)])
-    .filter(Boolean);
-
-  if (linePoints.length >= 2) {
-    const pathData = linePoints
-      .map(([x, y], index) => `${index === 0 ? "M" : "L"} ${x} ${y}`)
-      .join(" ");
-
-    monthlyChart.appendChild(
-      svgElement("path", {
-        d: pathData,
-        class: "chart-daily-line"
-      })
-    );
+  if (overallMean !== null && barDates.length > 0) {
+    chartData.push({
+      x: [barDates[0], barDates[barDates.length - 1]],
+      y: [overallMean, overallMean],
+      type: "scatter",
+      mode: "lines",
+      name: "Mittelwert",
+      line: {
+        color: "#242332",
+        width: 1.7,
+        dash: "dash"
+      },
+      hovertemplate: "Mittelwert: %{y:.1f} Sterne<extra></extra>"
+    });
   }
 
-  const meanY = plotY(monthlyMean);
-  monthlyChart.appendChild(
-    svgElement("line", {
-      x1: margin.left,
-      y1: meanY,
-      x2: width - margin.right,
-      y2: meanY,
-      class: "chart-mean-line"
-    })
-  );
-  monthlyChart.appendChild(
-    svgElement("text", {
-      x: width - margin.right,
-      y: meanY - 9,
-      class: "chart-mean-label",
-      "text-anchor": "end"
-    }, `Ø ${monthlyMean.toFixed(1).replace(".", ",")}`)
-  );
+  if (medicationDates.length > 0) {
+    chartData.push({
+      x: medicationDates,
+      y: medicationDates.map(() => 4.35),
+      type: "scatter",
+      mode: "markers+text",
+      name: "Medikament",
+      text: medicationDates.map(() => "💊"),
+      textposition: "middle center",
+      textfont: {
+        size: 14
+      },
+      marker: {
+        symbol: "circle",
+        size: 19,
+        color: "#6f6ca9",
+        line: {
+          color: "#ffffff",
+          width: 1.5
+        }
+      },
+      hovertemplate: "%{x|%d.%m.%Y}<br>Medikament genommen<extra></extra>"
+    });
+  }
 
-  for (let day = 1; day <= daysInMonth; day += 1) {
-    if (day !== 1 && day % 5 !== 0 && day !== daysInMonth) {
-      continue;
+  if (periodDates.length > 0) {
+    chartData.push({
+      x: periodDates,
+      y: periodDates.map(() => 4.78),
+      type: "scatter",
+      mode: "markers+text",
+      name: "Periode",
+      text: periodDates.map(() => "🩸"),
+      textposition: "middle center",
+      textfont: {
+        size: 14
+      },
+      marker: {
+        symbol: "diamond",
+        size: 19,
+        color: "#c95776",
+        line: {
+          color: "#ffffff",
+          width: 1.5
+        }
+      },
+      hovertemplate: "%{x|%d.%m.%Y}<br>Periode<extra></extra>"
+    });
+  }
+
+  const selectorOptions = {
+    buttons: [
+      {
+        step: "month",
+        stepmode: "backward",
+        count: 1,
+        label: "1 M"
+      },
+      {
+        step: "month",
+        stepmode: "backward",
+        count: 3,
+        label: "3 M"
+      },
+      {
+        step: "month",
+        stepmode: "backward",
+        count: 6,
+        label: "6 M"
+      },
+      {
+        step: "year",
+        stepmode: "backward",
+        count: 1,
+        label: "1 J"
+      },
+      {
+        step: "all",
+        label: "Alles"
+      }
+    ]
+  };
+  const layout = {
+    autosize: true,
+    height: 430,
+    margin: {
+      l: 52,
+      r: 18,
+      t: 28,
+      b: 88
+    },
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(255,255,255,0.26)",
+    hovermode: "x unified",
+    showlegend: true,
+    legend: {
+      orientation: "h",
+      y: -0.28,
+      x: 0,
+      font: {
+        size: 11,
+        color: "#77758a"
+      }
+    },
+    xaxis: {
+      type: "date",
+      rangeselector: selectorOptions,
+      rangeslider: {
+        visible: true,
+        thickness: 0.08
+      },
+      gridcolor: "#ebe7e7",
+      linecolor: "#e9e5e1",
+      tickformat: "%d.%m.%Y"
+    },
+    yaxis: {
+      title: {
+        text: "Sterne"
+      },
+      range: [0, 5.15],
+      dtick: 1,
+      gridcolor: "#ebe7e7",
+      zeroline: false,
+      fixedrange: true
     }
+  };
+  const config = {
+    responsive: true,
+    displaylogo: false,
+    modeBarButtonsToRemove: ["lasso2d", "select2d"]
+  };
 
-    monthlyChart.appendChild(
-      svgElement("text", {
-        x: plotX(day - 1),
-        y: height - 17,
-        class: "chart-axis-label",
-        "text-anchor": "middle"
-      }, String(day))
-    );
-  }
+  Plotly.react(monthlyChart, chartData, layout, config);
 }
-
 
 function renderInsights() {
   updateMonthNavigation();
@@ -558,6 +701,7 @@ async function saveEntry() {
     date: dateInput.value,
     intensity: getSelectedIntensity(),
     medication: medicationInput.checked,
+    period: periodInput.checked ? "1" : null,
     notes: notesInput.value.trim() || null
   };
 
@@ -574,6 +718,7 @@ async function saveEntry() {
   saveMessage.textContent = "Eintrag gespeichert.";
   resetIntensity();
   medicationInput.checked = false;
+  periodInput.checked = false;
   notesInput.value = "";
 
   loadEntries();
@@ -625,9 +770,17 @@ async function loadEntries() {
 
       const metaElement = document.createElement("p");
       metaElement.className = "entry-meta";
-      metaElement.textContent = hasMedication(entry)
-        ? "Medikament genommen"
-        : "Kein Medikament";
+      const statusParts = [
+        hasMedication(entry)
+          ? "Medikament genommen"
+          : "Kein Medikament"
+      ];
+
+      if (hasPeriod(entry)) {
+        statusParts.push("🩸 Periode");
+      }
+
+      metaElement.textContent = statusParts.join(" · ");
 
       entryElement.append(topLine, metaElement);
 
