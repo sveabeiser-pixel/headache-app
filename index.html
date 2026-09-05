@@ -176,10 +176,7 @@
                         </div>
 
                         <div class="chart-wrap">
-                            <svg id="monthly-chart" class="monthly-chart" viewBox="0 0 760 330" role="img" aria-labelledby="chart-title chart-description">
-                                <title id="chart-title">Kopfschmerzstärke im ausgewählten Monat</title>
-                                <desc id="chart-description">Balkendiagramm mit einer Linie für den Monatsmittelwert.</desc>
-                            </svg>
+                            <div id="monthly-chart" class="monthly-chart" role="img" aria-label="Interaktiver Kopfschmerzverlauf mit Markierungen für Medikamente und Periode"></div>
                             <p id="chart-empty" class="empty-state" hidden>Noch keine Stärke-Daten für diesen Monat.</p>
                         </div>
 
@@ -212,6 +209,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
