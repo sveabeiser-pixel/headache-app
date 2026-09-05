@@ -3,51 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7f4ef">
     <title>Kopfschmerz-Tagebuch</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <main>
-        <h1>Kopfschmerz-Tagebuch</h1>
+    <div class="page-shell">
+        <header class="hero">
+            <div class="brand-lockup">
+                <div class="logo-mark" aria-hidden="true">
+                    <svg viewBox="0 0 64 64" role="img">
+                        <defs>
+                            <linearGradient id="logo-gradient" x1="10" y1="8" x2="54" y2="58" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#ffb38a"/>
+                                <stop offset="1" stop-color="#ee7891"/>
+                            </linearGradient>
+                        </defs>
+                        <circle cx="32" cy="32" r="29" fill="url(#logo-gradient)"/>
+                        <path d="M17 34c3.6-8.5 8.2-8.5 11.8 0s8.2 8.5 11.8 0S48 25.5 51.5 34" fill="none" stroke="#fffaf5" stroke-linecap="round" stroke-width="3.5"/>
+                        <path d="M45 14v9M40.5 18.5h9" fill="none" stroke="#fffaf5" stroke-linecap="round" stroke-width="3"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="eyebrow">DEIN MOMENT FÜR DICH</p>
+                    <h1>Kopfschmerz-Tagebuch</h1>
+                </div>
+            </div>
+            <p class="hero-copy">Beobachte Muster. Halte fest, was dir guttut.</p>
+        </header>
 
-        <section id="login-section">
-            <h2>Anmelden</h2>
+        <main>
+            <section id="login-section" class="card auth-card">
+                <div class="section-heading">
+                    <div class="heading-icon" aria-hidden="true">↗</div>
+                    <div>
+                        <p class="eyebrow">PERSÖNLICHER BEREICH</p>
+                        <h2>Willkommen zurück</h2>
+                    </div>
+                </div>
 
-            <label for="email">E-Mail-Adresse</label>
-            <input id="email" type="email" autocomplete="username" required>
+                <div class="field-group">
+                    <label for="email">E-Mail-Adresse</label>
+                    <input class="input" id="email" type="email" autocomplete="username" placeholder="du@beispiel.de" required>
+                </div>
 
-            <label for="password">Passwort</label>
-            <input id="password" type="password" autocomplete="current-password" required>
+                <div class="field-group">
+                    <label for="password">Passwort</label>
+                    <input class="input" id="password" type="password" autocomplete="current-password" placeholder="••••••••" required>
+                </div>
 
-            <button id="login-button" type="button">Anmelden</button>
-            <p id="login-message" role="alert" aria-live="polite"></p>
-        </section>
+                <button id="login-button" class="primary-button" type="button">
+                    <span>Anmelden</span>
+                    <span aria-hidden="true">→</span>
+                </button>
+                <p id="login-message" class="message" role="alert" aria-live="polite"></p>
+            </section>
 
-        <section id="app-section" hidden>
-            <button id="logout-button" type="button">Abmelden</button>
+            <section id="app-section" class="app-shell" hidden>
+                <div class="app-toolbar">
+                    <div>
+                        <p class="eyebrow">TAGESÜBERSICHT</p>
+                        <h2>Wie geht es dir heute?</h2>
+                    </div>
+                    <button id="logout-button" class="ghost-button" type="button">Abmelden</button>
+                </div>
 
-            <h2>Neuen Eintrag speichern</h2>
+                <div class="app-grid">
+                    <section class="card form-card">
+                        <div class="card-heading">
+                            <div class="heading-icon soft-icon" aria-hidden="true">✦</div>
+                            <div>
+                                <p class="eyebrow">NEUER EINTRAG</p>
+                                <h3>Dein heutiger Check-in</h3>
+                            </div>
+                        </div>
 
-            <label for="date">Datum</label>
-            <input id="date" type="date" required>
+                        <div class="field-group">
+                            <label for="date">Datum</label>
+                            <input class="input" id="date" type="date" required>
+                        </div>
 
-            <label for="intensity">Kopfschmerzstärke (0–10)</label>
-            <input id="intensity" type="number" min="0" max="10" step="1">
+                        <fieldset class="field-group rating-group">
+                            <legend>Kopfschmerzstärke</legend>
+                            <p class="helper-text">Wähle eine von vier Stufen.</p>
+                            <div id="star-rating" class="star-rating" role="radiogroup" aria-label="Kopfschmerzstärke von einem bis vier Sternen">
+                                <input class="star-input" id="intensity-1" type="radio" name="intensity" value="1">
+                                <label for="intensity-1" title="1 von 4 Sternen"><span aria-hidden="true">★</span><span class="sr-only">1 Stern</span></label>
 
-            <label for="medication">Medikament</label>
-            <input id="medication" type="text" autocomplete="off">
+                                <input class="star-input" id="intensity-2" type="radio" name="intensity" value="2">
+                                <label for="intensity-2" title="2 von 4 Sternen"><span aria-hidden="true">★</span><span class="sr-only">2 Sterne</span></label>
 
-            <label for="notes">Notizen</label>
-            <textarea id="notes" rows="4"></textarea>
+                                <input class="star-input" id="intensity-3" type="radio" name="intensity" value="3">
+                                <label for="intensity-3" title="3 von 4 Sternen"><span aria-hidden="true">★</span><span class="sr-only">3 Sterne</span></label>
 
-            <button id="save-button" type="button">Speichern</button>
-            <p id="save-message" role="status" aria-live="polite"></p>
+                                <input class="star-input" id="intensity-4" type="radio" name="intensity" value="4">
+                                <label for="intensity-4" title="4 von 4 Sternen"><span aria-hidden="true">★</span><span class="sr-only">4 Sterne</span></label>
+                            </div>
+                        </fieldset>
 
-            <h2>Meine Einträge</h2>
-            <div id="entries" aria-live="polite"></div>
-        </section>
-    </main>
+                        <label class="checkbox-card" for="medication">
+                            <input id="medication" type="checkbox">
+                            <span class="checkbox-box" aria-hidden="true"></span>
+                            <span class="checkbox-copy">
+                                <strong>Medikament genommen</strong>
+                                <small>Markiere dies, wenn du heute ein Medikament eingenommen hast.</small>
+                            </span>
+                        </label>
+
+                        <div class="field-group">
+                            <label for="notes">Notizen <span class="optional-label">optional</span></label>
+                            <textarea class="input textarea" id="notes" rows="4" placeholder="z. B. Auslöser, Begleitsymptome oder was geholfen hat …"></textarea>
+                        </div>
+
+                        <button id="save-button" class="primary-button" type="button">
+                            <span>Eintrag speichern</span>
+                            <span aria-hidden="true">↗</span>
+                        </button>
+                        <p id="save-message" class="message" role="status" aria-live="polite"></p>
+                    </section>
+
+                    <section class="card entries-card">
+                        <div class="card-heading entries-heading">
+                            <div>
+                                <p class="eyebrow">VERLAUF</p>
+                                <h3>Deine Einträge</h3>
+                            </div>
+                            <span class="entry-count" aria-hidden="true">♥</span>
+                        </div>
+                        <div id="entries" class="entries-list" aria-live="polite"></div>
+                    </section>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer-note">Deine Daten bleiben privat und werden nur für dein Konto gespeichert.</footer>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="app.js"></script>
