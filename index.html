@@ -4,28 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kopfschmerz-Tagebuch</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <main>
+        <h1>Kopfschmerz-Tagebuch</h1>
 
-<h1>Kopfschmerz-Tagebuch</h1>
+        <section id="login-section">
+            <h2>Anmelden</h2>
 
-<label>Datum:</label>
-<input type="date">
+            <label for="email">E-Mail-Adresse</label>
+            <input id="email" type="email" autocomplete="username" required>
 
-<br><br>
+            <label for="password">Passwort</label>
+            <input id="password" type="password" autocomplete="current-password" required>
 
-<label>Kopfschmerzstärke 0–10:</label>
-<input type="number" min="0" max="10">
+            <button id="login-button" type="button">Anmelden</button>
+            <p id="login-message" role="alert" aria-live="polite"></p>
+        </section>
 
-<br><br>
+        <section id="app-section" hidden>
+            <button id="logout-button" type="button">Abmelden</button>
 
-<label>Dauer in Stunden:</label>
-<input type="number" step="0.5">
+            <h2>Neuen Eintrag speichern</h2>
 
-<br><br>
+            <label for="date">Datum</label>
+            <input id="date" type="date" required>
 
-<button>Speichern</button>
+            <label for="intensity">Kopfschmerzstärke (0–10)</label>
+            <input id="intensity" type="number" min="0" max="10" step="1">
 
+            <label for="duration">Dauer in Stunden</label>
+            <input id="duration" type="number" min="0" step="0.5">
+
+            <label for="medication">Medikament</label>
+            <input id="medication" type="text" autocomplete="off">
+
+            <label for="notes">Notizen</label>
+            <textarea id="notes" rows="4"></textarea>
+
+            <button id="save-button" type="button">Speichern</button>
+            <p id="save-message" role="status" aria-live="polite"></p>
+
+            <h2>Meine Einträge</h2>
+            <div id="entries" aria-live="polite"></div>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
 </body>
 </html>
