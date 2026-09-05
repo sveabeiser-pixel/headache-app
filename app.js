@@ -329,7 +329,6 @@ function colorForIntensity(value) {
 
 function renderMonthlyChart() {
   const monthEntries = entriesData;
-  const daysInMonth = 0;
   const recordsByDate = new Map();
 
   for (const entry of monthEntries) {
@@ -575,7 +574,7 @@ function renderMonthlyChart() {
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(255,255,255,0.26)",
     hovermode: "x unified",
-    showlegend: true,
+    showlegend: false,
     legend: {
       orientation: "h",
       y: -0.28,
