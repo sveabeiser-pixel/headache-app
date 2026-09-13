@@ -427,8 +427,8 @@ h3 {
 }
 
 .period-checkbox-card input:checked + .checkbox-box {
-  border-color: #c95776;
-  background: #c95776;
+  border-color: #b53a52;
+  background: #b53a52;
 }
 
 .checkbox-copy {
@@ -726,21 +726,21 @@ h3 {
 }
 
 .calendar-day.intensity-1 {
-  background: #f8d5ca;
+  background: #f7c9c1;
 }
 
 .calendar-day.intensity-2 {
-  background: #f3b1ab;
+  background: #ed9b96;
 }
 
 .calendar-day.intensity-3 {
   color: #fff;
-  background: #e98b96;
+  background: #d96c75;
 }
 
 .calendar-day.intensity-4 {
   color: #fff;
-  background: #c95776;
+  background: #b53a52;
 }
 
 .calendar-day.intensity-none {
@@ -759,10 +759,23 @@ h3 {
   min-height: 16px;
 }
 
-.pill-icon,
-.period-icon {
+.pill-icon {
   font-size: 0.78rem;
   line-height: 1;
+}
+
+.period-icon,
+.legend-period,
+.period-key,
+.inline-period-icon {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  border-radius: 50% 50% 50% 0;
+  background: #f06f9f;
+  transform: rotate(-45deg);
+  vertical-align: middle;
 }
 
 .calendar-legend,
@@ -790,19 +803,19 @@ h3 {
 }
 
 .legend-swatch.intensity-1 {
-  background: #f8d5ca;
+  background: #f7c9c1;
 }
 
 .legend-swatch.intensity-2 {
-  background: #f3b1ab;
+  background: #ed9b96;
 }
 
 .legend-swatch.intensity-3 {
-  background: #e98b96;
+  background: #d96c75;
 }
 
 .legend-swatch.intensity-4 {
-  background: #c95776;
+  background: #b53a52;
 }
 
 .legend-pill,
@@ -878,7 +891,7 @@ h3 {
 }
 
 .chart-period-marker {
-  fill: #c95776;
+  fill: #f06f9f;
   stroke: #fff;
   stroke-width: 1.2;
 }
@@ -914,7 +927,6 @@ h3 {
   background-size: 7px 100%;
 }
 
-.period-key,
 .medication-key {
   width: auto;
   height: auto;
