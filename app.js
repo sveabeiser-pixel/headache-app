@@ -278,7 +278,7 @@ function renderCalendar() {
         const period = document.createElement("span");
         period.className = "period-icon";
         period.setAttribute("aria-label", "Periode");
-        period.textContent = "🩸";
+        period.textContent = "";
         indicators.appendChild(period);
       }
     } else {
@@ -319,10 +319,10 @@ function colorForIntensity(value) {
   const intensity = clampIntensity(value);
 
   return {
-    1: "#f6c4bb",
-    2: "#ee9e9e",
-    3: "#e47b8d",
-    4: "#c95776"
+    1: "#f7c9c1",
+    2: "#ed9b96",
+    3: "#d96c75",
+    4: "#b53a52"
   }[intensity] || "#d9d5dc";
 }
 
@@ -401,7 +401,7 @@ function renderMonthlyChart() {
   }
 
   if (periodDates.length > 0) {
-    summaryParts.push("🩸 " + periodDates.length + " Periodentage");
+    summaryParts.push(periodDates.length + " Periodentage");
   }
 
   chartSummary.textContent = summaryParts.length
@@ -510,17 +510,12 @@ function renderMonthlyChart() {
       x: periodDates,
       y: periodDates.map(() => 4.78),
       type: "scatter",
-      mode: "markers+text",
+      mode: "markers",
       name: "Periode",
-      text: periodDates.map(() => "🩸"),
-      textposition: "middle center",
-      textfont: {
-        size: 14
-      },
       marker: {
-        symbol: "diamond",
-        size: 19,
-        color: "#c95776",
+        symbol: "triangle-down",
+        size: 16,
+        color: "#f06f9f",
         line: {
           color: "#ffffff",
           width: 1.5
@@ -765,11 +760,21 @@ async function loadEntries() {
           : "Kein Medikament"
       ];
 
-      if (hasPeriod(entry)) {
-        statusParts.push("🩸 Periode");
-      }
-
       metaElement.textContent = statusParts.join(" · ");
+
+      if (hasPeriod(entry)) {
+        const periodSeparator = document.createTextNode(" · ");
+        const periodIcon = document.createElement("span");
+        periodIcon.className = "period-icon inline-period-icon";
+        periodIcon.setAttribute("role", "img");
+        periodIcon.setAttribute("aria-label", "Periode");
+        periodIcon.title = "Periode";
+        metaElement.append(
+          periodSeparator,
+          periodIcon,
+          document.createTextNode(" Periode")
+        );
+      }
 
       entryElement.append(topLine, metaElement);
 
