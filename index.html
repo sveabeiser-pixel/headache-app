@@ -86,19 +86,22 @@
 
                         <fieldset class="field-group rating-group">
                             <legend>Kopfschmerzstärke</legend>
-                            <p class="helper-text">Wähle eine von vier Stufen.</p>
-                            <div id="star-rating" class="star-rating" role="radiogroup" aria-label="Kopfschmerzstärke von einem bis vier Sternen">
-                                <input class="star-input" id="intensity-1" type="radio" name="intensity" value="1">
-                                <label for="intensity-1" title="1 von 4 Sternen"><span aria-hidden="true">★</span><span class="sr-only">1 Stern</span></label>
+                            <p class="helper-text">Wähle eine von vier Stufen oder setze die Angabe zurück.</p>
+                            <div class="rating-controls">
+                                <div id="star-rating" class="star-rating" role="radiogroup" aria-label="Kopfschmerzstärke von einem bis vier Sternen">
+                                    <input class="star-input" id="intensity-1" type="radio" name="intensity" value="1">
+                                    <label for="intensity-1" title="1 von 4 Sternen"><span aria-hidden="true">★</span><span class="sr-only">1 Stern</span></label>
 
-                                <input class="star-input" id="intensity-2" type="radio" name="intensity" value="2">
-                                <label for="intensity-2" title="2 von 4 Sternen"><span aria-hidden="true">★</span><span class="sr-only">2 Sterne</span></label>
+                                    <input class="star-input" id="intensity-2" type="radio" name="intensity" value="2">
+                                    <label for="intensity-2" title="2 von 4 Sternen"><span aria-hidden="true">★</span><span class="sr-only">2 Sterne</span></label>
 
-                                <input class="star-input" id="intensity-3" type="radio" name="intensity" value="3">
-                                <label for="intensity-3" title="3 von 4 Sternen"><span aria-hidden="true">★</span><span class="sr-only">3 Sterne</span></label>
+                                    <input class="star-input" id="intensity-3" type="radio" name="intensity" value="3">
+                                    <label for="intensity-3" title="3 von 4 Sternen"><span aria-hidden="true">★</span><span class="sr-only">3 Sterne</span></label>
 
-                                <input class="star-input" id="intensity-4" type="radio" name="intensity" value="4">
-                                <label for="intensity-4" title="4 von 4 Sternen"><span aria-hidden="true">★</span><span class="sr-only">4 Sterne</span></label>
+                                    <input class="star-input" id="intensity-4" type="radio" name="intensity" value="4">
+                                    <label for="intensity-4" title="4 von 4 Sternen"><span aria-hidden="true">★</span><span class="sr-only">4 Sterne</span></label>
+                                </div>
+                                <button id="clear-intensity" class="rating-clear" type="button" aria-label="Kopfschmerzstärke auf keine Angabe zurücksetzen">Keine Angabe</button>
                             </div>
                         </fieldset>
 
@@ -126,7 +129,7 @@
                         </div>
 
                         <button id="save-button" class="primary-button" type="button">
-                            <span>Eintrag speichern</span>
+                            <span id="save-button-label">Eintrag speichern</span>
                             <span aria-hidden="true">↗</span>
                         </button>
                         <p id="save-message" class="message" role="status" aria-live="polite"></p>
