@@ -30,6 +30,8 @@ const intensityLabels = Array.from(
 );
 
 const saveButton = document.getElementById("save-button");
+const saveButtonLabel = document.getElementById("save-button-label");
+const clearIntensityButton = document.getElementById("clear-intensity");
 const entriesDiv = document.getElementById("entries");
 
 const previousMonthButton = document.getElementById("previous-month");
@@ -50,6 +52,7 @@ const currentMonth = new Date(
 );
 let selectedMonth = new Date(currentMonth);
 let entriesData = [];
+let editingEntryId = null;
 
 
 function getLocalDateString(date = new Date()) {
@@ -109,6 +112,25 @@ function clampIntensity(value) {
 }
 
 
+function getEntryForDate(dateKey) {
+  const matchingEntries = entriesData.filter(
+    (entry) => getDateKey(entry.date) === dateKey
+  );
+
+  if (editingEntryId !== null) {
+    const preferredEntry = matchingEntries.find(
+      (entry) => String(entry.id) === String(editingEntryId)
+    );
+
+    if (preferredEntry) {
+      return preferredEntry;
+    }
+  }
+
+  return matchingEntries[0] || null;
+}
+
+
 function hasMedication(entry) {
   return entry.medication === true || entry.medication === "true";
 }
@@ -140,6 +162,45 @@ function resetIntensity() {
     input.checked = false;
   });
   updateStarDisplay(0);
+}
+
+
+function setSaveButtonMode(isEditing) {
+  saveButtonLabel.textContent = isEditing
+    ? "Eintrag aktualisieren"
+    : "Eintrag speichern";
+}
+
+
+function applyEntryToForm(entry) {
+  const intensity = clampIntensity(entry?.intensity);
+
+  intensityInputs.forEach((input) => {
+    input.checked = Boolean(
+      entry &&
+      intensity > 0 &&
+      Number(input.value) === intensity
+    );
+  });
+  updateStarDisplay(intensity);
+
+  medicationInput.checked = entry ? hasMedication(entry) : false;
+  periodInput.checked = entry ? hasPeriod(entry) : false;
+  notesInput.value = entry?.notes || "";
+}
+
+
+function syncFormToSelectedDate(showMessage = true) {
+  const existingEntry = getEntryForDate(dateInput.value);
+  editingEntryId = existingEntry?.id ?? null;
+  applyEntryToForm(existingEntry);
+  setSaveButtonMode(Boolean(existingEntry));
+
+  if (showMessage) {
+    saveMessage.textContent = existingEntry
+      ? "Vorhandenen Eintrag geladen – Änderungen überschreiben ihn."
+      : "";
+  }
 }
 
 
@@ -689,23 +750,57 @@ async function saveEntry() {
     notes: notesInput.value.trim() || null
   };
 
-  const { error } = await supabaseClient
-    .from("headache_entries")
-    .insert(entry);
+  let targetId = editingEntryId;
 
-  if (error) {
+  if (!targetId) {
+    const {
+      data: existingEntry,
+      error: lookupError
+    } = await supabaseClient
+      .from("headache_entries")
+      .select("id")
+      .eq("date", entry.date)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (lookupError) {
+      saveMessage.textContent =
+        "Fehler beim Prüfen des Datums: " + lookupError.message;
+      return;
+    }
+
+    targetId = existingEntry?.id ?? null;
+  }
+
+  const saveRequest = targetId
+    ? supabaseClient
+        .from("headache_entries")
+        .update(entry)
+        .eq("id", targetId)
+        .select("*")
+        .single()
+    : supabaseClient
+        .from("headache_entries")
+        .insert(entry)
+        .select("*")
+        .single();
+
+  const { data: savedEntry, error } = await saveRequest;
+
+  if (error || !savedEntry) {
     saveMessage.textContent =
-      "Fehler beim Speichern: " + error.message;
+      "Fehler beim Speichern: " +
+      (error?.message || "Der Eintrag konnte nicht gefunden werden.");
     return;
   }
 
-  saveMessage.textContent = "Eintrag gespeichert.";
-  resetIntensity();
-  medicationInput.checked = false;
-  periodInput.checked = false;
-  notesInput.value = "";
+  editingEntryId = savedEntry.id;
+  saveMessage.textContent = targetId
+    ? "Eintrag aktualisiert."
+    : "Eintrag gespeichert.";
 
-  loadEntries();
+  await loadEntries();
 }
 
 
@@ -713,7 +808,8 @@ async function loadEntries() {
   const { data, error } = await supabaseClient
     .from("headache_entries")
     .select("*")
-    .order("date", { ascending: false });
+    .order("date", { ascending: false })
+    .order("created_at", { ascending: false });
 
   if (error) {
     entriesData = [];
@@ -789,6 +885,7 @@ async function loadEntries() {
     }
   }
 
+  syncFormToSelectedDate(false);
   renderInsights();
 }
 
@@ -797,6 +894,14 @@ intensityInputs.forEach((input) => {
   input.addEventListener("change", () => {
     updateStarDisplay(Number(input.value));
   });
+});
+
+clearIntensityButton.addEventListener("click", () => {
+  resetIntensity();
+});
+
+dateInput.addEventListener("change", () => {
+  syncFormToSelectedDate();
 });
 
 previousMonthButton.addEventListener("click", () => {
@@ -810,6 +915,7 @@ nextMonthButton.addEventListener("click", () => {
 });
 
 dateInput.value = getLocalDateString();
+setSaveButtonMode(false);
 
 loginButton.addEventListener("click", login);
 logoutButton.addEventListener("click", logout);
