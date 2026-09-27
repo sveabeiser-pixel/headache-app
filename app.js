@@ -30,7 +30,9 @@ const intensityLabels = Array.from(
 );
 
 const saveButton = document.getElementById("save-button");
-const saveButtonLabel = document.getElementById("save-button-label");
+const saveButtonLabel =
+  document.getElementById("save-button-label") ||
+  saveButton.querySelector("span");
 const clearIntensityButton = document.getElementById("clear-intensity");
 const entriesDiv = document.getElementById("entries");
 
@@ -896,9 +898,11 @@ intensityInputs.forEach((input) => {
   });
 });
 
-clearIntensityButton.addEventListener("click", () => {
-  resetIntensity();
-});
+if (clearIntensityButton) {
+  clearIntensityButton.addEventListener("click", () => {
+    resetIntensity();
+  });
+}
 
 dateInput.addEventListener("change", () => {
   syncFormToSelectedDate();
