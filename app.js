@@ -53,6 +53,21 @@ const currentMonth = new Date(
   1
 );
 let selectedMonth = new Date(currentMonth);
+const FULL_MOON_DATES_2027 = new Set([
+  "2027-01-22",
+  "2027-02-21",
+  "2027-03-22",
+  "2027-04-21",
+  "2027-05-20",
+  "2027-06-19",
+  "2027-07-18",
+  "2027-08-17",
+  "2027-09-16",
+  "2027-10-15",
+  "2027-11-14",
+  "2027-12-13"
+]);
+
 let entriesData = [];
 let editingEntryId = null;
 
@@ -326,6 +341,7 @@ function renderCalendar() {
     const dateKey =
       `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     const summary = summaryByDate.get(dateKey);
+    const hasFullMoon = FULL_MOON_DATES_2027.has(dateKey);
     const cell = document.createElement("div");
 
     cell.className = "calendar-day";
@@ -403,6 +419,20 @@ function renderCalendar() {
     }
 
     cell.append(dayNumber, indicators);
+
+    if (hasFullMoon) {
+      const currentAriaLabel = cell.getAttribute("aria-label") || "";
+      cell.setAttribute("aria-label", `${currentAriaLabel}, Vollmond`);
+      cell.title = cell.getAttribute("aria-label");
+
+      const moon = document.createElement("span");
+      moon.className = "full-moon-icon";
+      moon.setAttribute("role", "img");
+      moon.setAttribute("aria-label", "Vollmond");
+      moon.title = "Vollmond";
+      cell.appendChild(moon);
+    }
+
     calendarGrid.appendChild(cell);
   }
 }
