@@ -133,6 +133,21 @@ function getEntryForDate(dateKey) {
 }
 
 
+function getLatestEntriesPerDate(entries) {
+  const latestByDate = new Map();
+
+  for (const entry of entries) {
+    const dateKey = getDateKey(entry.date);
+
+    if (!latestByDate.has(dateKey)) {
+      latestByDate.set(dateKey, entry);
+    }
+  }
+
+  return Array.from(latestByDate.values());
+}
+
+
 function hasMedication(entry) {
   return entry.medication === true || entry.medication === "true";
 }
@@ -162,6 +177,7 @@ function getSelectedIntensity() {
 function resetIntensity() {
   intensityInputs.forEach((input) => {
     input.checked = false;
+    input.dataset.selected = "false";
   });
   updateStarDisplay(0);
 }
@@ -183,6 +199,7 @@ function applyEntryToForm(entry) {
       intensity > 0 &&
       Number(input.value) === intensity
     );
+    input.dataset.selected = input.checked ? "true" : "false";
   });
   updateStarDisplay(intensity);
 
@@ -203,6 +220,17 @@ function syncFormToSelectedDate(showMessage = true) {
       ? "Vorhandenen Eintrag geladen – Änderungen überschreiben ihn."
       : "";
   }
+}
+
+
+function selectDateForEditing(dateKey) {
+  dateInput.value = dateKey;
+  syncFormToSelectedDate();
+  dateInput.focus();
+  document.querySelector(".form-card")?.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
 }
 
 
@@ -292,6 +320,16 @@ function renderCalendar() {
 
     cell.className = "calendar-day";
     cell.setAttribute("role", "gridcell");
+    cell.tabIndex = 0;
+    cell.addEventListener("click", () => {
+      selectDateForEditing(dateKey);
+    });
+    cell.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        selectDateForEditing(dateKey);
+      }
+    });
 
     const dayNumber = document.createElement("span");
     dayNumber.className = "day-number";
@@ -756,15 +794,14 @@ async function saveEntry() {
 
   if (!targetId) {
     const {
-      data: existingEntry,
+      data: existingEntries,
       error: lookupError
     } = await supabaseClient
       .from("headache_entries")
       .select("id")
       .eq("date", entry.date)
       .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .limit(1);
 
     if (lookupError) {
       saveMessage.textContent =
@@ -772,7 +809,7 @@ async function saveEntry() {
       return;
     }
 
-    targetId = existingEntry?.id ?? null;
+    targetId = existingEntries?.[0]?.id ?? null;
   }
 
   const saveRequest = targetId
@@ -781,7 +818,7 @@ async function saveEntry() {
         .update(entry)
         .eq("id", targetId)
         .select("*")
-        .single()
+        .maybeSingle()
     : supabaseClient
         .from("headache_entries")
         .insert(entry)
@@ -821,7 +858,7 @@ async function loadEntries() {
     return;
   }
 
-  entriesData = data || [];
+  entriesData = getLatestEntriesPerDate(data || []);
   entriesDiv.replaceChildren();
 
   if (entriesData.length === 0) {
@@ -893,8 +930,31 @@ async function loadEntries() {
 
 
 intensityInputs.forEach((input) => {
-  input.addEventListener("change", () => {
+  input.addEventListener("click", () => {
+    const wasSelected = input.dataset.selected === "true";
+
+    intensityInputs.forEach((otherInput) => {
+      otherInput.dataset.selected = "false";
+    });
+
+    if (wasSelected) {
+      input.checked = false;
+      updateStarDisplay(0);
+      return;
+    }
+
+    input.dataset.selected = "true";
     updateStarDisplay(Number(input.value));
+  });
+
+  input.addEventListener("change", () => {
+    if (input.checked) {
+      intensityInputs.forEach((otherInput) => {
+        otherInput.dataset.selected =
+          otherInput === input ? "true" : "false";
+      });
+      updateStarDisplay(Number(input.value));
+    }
   });
 });
 
@@ -905,6 +965,10 @@ if (clearIntensityButton) {
 }
 
 dateInput.addEventListener("change", () => {
+  syncFormToSelectedDate();
+});
+
+dateInput.addEventListener("input", () => {
   syncFormToSelectedDate();
 });
 
