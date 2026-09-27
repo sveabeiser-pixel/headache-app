@@ -748,6 +748,15 @@ h3 {
   box-shadow: 0 8px 16px rgba(73, 58, 63, 0.14);
 }
 
+.calendar-day:not(.calendar-empty) {
+  cursor: pointer;
+}
+
+.calendar-day:not(.calendar-empty):focus-visible {
+  outline: 3px solid rgba(111, 108, 169, 0.35);
+  outline-offset: 2px;
+}
+
 .calendar-empty {
   border-color: transparent;
   background: transparent;
