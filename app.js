@@ -138,13 +138,23 @@ function getLatestEntriesPerDate(entries) {
 
   for (const entry of entries) {
     const dateKey = getDateKey(entry.date);
+    const currentEntry = latestByDate.get(dateKey);
+    const currentTime = currentEntry
+      ? Date.parse(currentEntry.created_at || "")
+      : Number.NEGATIVE_INFINITY;
+    const entryTime = Date.parse(entry.created_at || "");
 
-    if (!latestByDate.has(dateKey)) {
+    if (
+      !currentEntry ||
+      (Number.isFinite(entryTime) && entryTime >= currentTime)
+    ) {
       latestByDate.set(dateKey, entry);
     }
   }
 
-  return Array.from(latestByDate.values());
+  return Array.from(latestByDate.values()).sort((first, second) =>
+    getDateKey(second.date).localeCompare(getDateKey(first.date))
+  );
 }
 
 
