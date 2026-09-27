@@ -796,6 +796,25 @@ h3 {
   min-height: 16px;
 }
 
+.full-moon-icon,
+.legend-moon {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  flex: 0 0 11px;
+  border: 1px solid rgba(146, 103, 10, 0.28);
+  border-radius: 50%;
+  background: #f5c84c;
+  box-shadow: 0 2px 5px rgba(116, 76, 8, 0.22);
+}
+
+.full-moon-icon {
+  position: absolute;
+  left: 7px;
+  bottom: 7px;
+  z-index: 1;
+}
+
 .pill-icon {
   font-size: 0.78rem;
   line-height: 1;
