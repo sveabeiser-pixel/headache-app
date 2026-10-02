@@ -1042,3 +1042,9 @@ h3 {
     min-height: 390px;
   }
 }
+
+
+/* Invert the complete interface palette. */
+body {
+  filter: invert(1);
+}
